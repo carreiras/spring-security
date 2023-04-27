@@ -3,6 +3,9 @@ package com.debugit.easybankbackend.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -10,37 +13,32 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        /**
-         * Below is the custom security configurations
-         */
-
-        /*
         http.authorizeHttpRequests()
                 .requestMatchers("/myAccount", "/myBalance", "/myLoans", "myCards").authenticated()
                 .requestMatchers("/notices", "/contact").permitAll()
                 .and().formLogin()
                 .and().httpBasic();
-         */
-
-        /**
-         * Configuration to deny all the requests
-         */
-
-        /*
-        http.authorizeHttpRequests().anyRequest().denyAll()
-                .and().formLogin()
-                .and().httpBasic();
-         */
-
-        /**
-         * Configuration to permit all the requests
-         */
-
-        http.authorizeHttpRequests().anyRequest().permitAll()
-                .and().formLogin()
-                .and().httpBasic();
 
         return http.build();
+    }
+
+
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        // Approach 1 where we use withDefaultPasswordEncoder() method while creating the user details
+
+        UserDetails admin = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("12345")
+                .authorities("admin")
+                .build();
+
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("12345")
+                .authorities("read")
+                .build();
+
+        return new InMemoryUserDetailsManager(admin, user);
     }
 }
